@@ -159,14 +159,104 @@ export class World {
   }
 
   private buildWall() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 500;
+    const ctx = canvas.getContext('2d')!;
+    const mortar = 8;
+    const brickW = 150;
+    const brickH = 62;
+
+    ctx.fillStyle = '#292426';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Seeded variation keeps the cartoon wall lively but stable between reloads.
+    let seed = 4817;
+    const random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+
+    for (let row = 0; row < Math.ceil(canvas.height / brickH); row++) {
+      const offset = row % 2 === 0 ? -brickW / 2 : 0;
+      for (let col = -1; col <= Math.ceil(canvas.width / brickW); col++) {
+        const x = offset + col * brickW + mortar / 2;
+        const y = row * brickH + mortar / 2;
+        const w = brickW - mortar;
+        const h = brickH - mortar;
+        const warmth = Math.round(random() * 28 - 14);
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 9);
+        ctx.fillStyle = `rgb(${176 + warmth}, ${67 + warmth * 0.35}, ${43 + warmth * 0.2})`;
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#542c27';
+        ctx.stroke();
+
+        // Chunky painted highlight and shadow make each brick pop like a cel drawing.
+        ctx.beginPath();
+        ctx.moveTo(x + 12, y + 11);
+        ctx.lineTo(x + w - 14, y + 11);
+        ctx.strokeStyle = 'rgba(255, 183, 128, 0.34)';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x + 14, y + h - 9);
+        ctx.lineTo(x + w - 10, y + h - 9);
+        ctx.strokeStyle = 'rgba(73, 24, 23, 0.35)';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Occasional simple chips and freckles—not photorealistic noise.
+        if (random() > 0.55) {
+          ctx.fillStyle = 'rgba(90, 35, 30, 0.42)';
+          ctx.beginPath();
+          ctx.arc(x + 22 + random() * (w - 44), y + 19 + random() * (h - 30), 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    const brickTexture = new THREE.CanvasTexture(canvas);
+    brickTexture.colorSpace = THREE.SRGBColorSpace;
+    brickTexture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+
+    const brickMaterial = new THREE.MeshStandardMaterial({
+      map: brickTexture,
+      color: '#ffffff',
+      roughness: 0.88,
+      metalness: 0
+    });
+    const sideMaterial = new THREE.MeshStandardMaterial({
+      color: '#713c32',
+      roughness: 0.96
+    });
+    const geometry = new THREE.BoxGeometry(FIELD_HALF_WIDTH * 2, WALL_HEIGHT, 0.5);
     const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(FIELD_HALF_WIDTH * 2, WALL_HEIGHT, 0.5),
-      new THREE.MeshStandardMaterial({ color: '#8c7b6b', roughness: 0.95 })
+      geometry,
+      [
+        sideMaterial,
+        sideMaterial,
+        sideMaterial,
+        sideMaterial,
+        brickMaterial,
+        sideMaterial
+      ]
     );
     mesh.position.set(0, WALL_HEIGHT / 2, -0.25);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     this.scene.add(mesh);
+
+    const outline = new THREE.LineSegments(
+      new THREE.EdgesGeometry(geometry, 30),
+      new THREE.LineBasicMaterial({ color: '#251b1a', transparent: true, opacity: 0.8 })
+    );
+    outline.position.copy(mesh.position);
+    this.scene.add(outline);
 
     const body = this.physics.createRigidBody(RAPIER.RigidBodyDesc.fixed());
     const col = this.physics.createCollider(
