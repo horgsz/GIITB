@@ -68,8 +68,23 @@
         <p class="tagline">Ground once &middot; Wall once &middot; Then the bucket</p>
 
         <div class="setup-form">
-          <label for="player-count">Players (2&ndash;10)</label>
-          <input id="player-count" type="number" min="2" max="10" value="3" />
+          <label id="player-count-label">Players</label>
+          <input id="player-count" type="hidden" value="3" />
+          <div
+            id="player-count-options"
+            class="player-count-options"
+            role="radiogroup"
+            aria-labelledby="player-count-label"
+          >
+            <button type="button" class="player-count-btn" data-count="1" role="radio" aria-checked="false">1</button>
+            <button type="button" class="player-count-btn" data-count="2" role="radio" aria-checked="false">2</button>
+            <button type="button" class="player-count-btn selected" data-count="3" role="radio" aria-checked="true">3</button>
+            <button type="button" class="player-count-btn" data-count="4" role="radio" aria-checked="false">4</button>
+            <button type="button" class="player-count-btn" data-count="5" role="radio" aria-checked="false">5</button>
+            <button type="button" class="player-count-btn" data-count="6" role="radio" aria-checked="false">6</button>
+            <button type="button" class="player-count-btn" data-count="7" role="radio" aria-checked="false">7</button>
+            <button type="button" class="player-count-btn" data-count="8" role="radio" aria-checked="false">8</button>
+          </div>
 
           <div id="name-list"></div>
 
@@ -81,6 +96,7 @@
           <ul>
             <li>The placing player sets the bucket in front of the wall, and the feather further back. Highlighted ground shows where placement is allowed.</li>
             <li>Throw from the feather. The ball must hit the ground <b>once</b>, the wall <b>once</b>, then go in the bucket.</li>
+            <li><b>Solo:</b> each make adds a point. Keep setting shots and see how high you can score.</li>
             <li>Everyone throws from that same spot, in order, looping as many times as it takes, until somebody makes it.</li>
             <li>Once someone is in, every other player gets one throw to steal the point.</li>
             <li>The last player to make it takes the point and places the bucket and feather next round.</li>

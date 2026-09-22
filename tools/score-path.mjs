@@ -57,10 +57,7 @@ async function runRound(name, stealShots) {
   // networkidle0 is unreliable here: Vite's HMR WebSocket stays open, so "no network
   // activity" is never reliably reached and goto times out. Wait for real readiness signals.
   await openGame(page, { needSeam: true });
-  await page.$eval('#player-count', (el) => {
-    el.value = '3';
-    el.dispatchEvent(new Event('input'));
-  });
+  await page.click('.player-count-btn[data-count="3"]');
   await page.click('#start-game');
   await sleep(600);
 

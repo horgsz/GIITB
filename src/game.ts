@@ -40,6 +40,10 @@ export class Game {
     return this.players[this.placerIndex];
   }
 
+  get isSolo(): boolean {
+    return this.players.length === 1;
+  }
+
   get currentPlayer(): Player {
     if (this.stage === 'open') return this.players[this.openIndex];
     const idx = this.stealQueue[Math.min(this.stealCursor, this.stealQueue.length - 1)];

@@ -169,6 +169,16 @@ class Controller {
     // Round over: the steal pass has finished.
     if (this.lastOutcome) {
       const { pointHolder } = this.lastOutcome;
+      if (game.isSolo) {
+        this.ui.showResult(
+          'Point scored!',
+          `${pointHolder.name}: ${pointHolder.score} point${pointHolder.score === 1 ? '' : 's'}. Set the next shot and keep going.`,
+          true,
+          'Set next shot'
+        );
+        return;
+      }
+
       const lead = result.scored ? `${thrower.name} steals it! ` : `${MISS_TEXT[result.reason!]} `;
       this.ui.showResult(
         `${pointHolder.name} takes the point`,
@@ -193,8 +203,10 @@ class Controller {
       return;
     }
 
-    const detail = wasOpen
-      ? `Still nobody in — same spot, ${next} is up.`
+    const detail = game.isSolo
+      ? `Try again from the same spot. Current score: ${game.currentPlayer.score}.`
+      : wasOpen
+        ? `Still nobody in — same spot, ${next} is up.`
       : `The point stays with ${game.pointHolder!.name}.`;
     this.ui.showResult('Miss', `${MISS_TEXT[result.reason!]} ${detail}`, false, `${next}'s throw`);
   }
@@ -525,7 +537,9 @@ class Controller {
         const hint = this.touchMode
           ? 'Drag to aim, then hold THROW and release on the power you want.'
           : 'Move to aim, hold the mouse to charge, release on the power you want.';
-        const lead = game.isStealPhase
+        const lead = game.isSolo
+          ? 'Solo — '
+          : game.isStealPhase
           ? 'Steal attempt — '
           : game.lap > 1
             ? `Still nobody in (lap ${game.lap}) — `

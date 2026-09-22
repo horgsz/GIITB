@@ -15,6 +15,7 @@ export class Ui {
   private resultNext = $<HTMLButtonElement>('result-next');
   private setupModal = $<HTMLDivElement>('setup');
   private countInput = $<HTMLInputElement>('player-count');
+  private countOptions = $<HTMLDivElement>('player-count-options');
   private nameList = $<HTMLDivElement>('name-list');
   private startBtn = $<HTMLButtonElement>('start-game');
   private throwBtn = $<HTMLButtonElement>('throw-btn');
@@ -26,8 +27,19 @@ export class Ui {
   private muteBtn = $<HTMLButtonElement>('mute-btn');
 
   constructor() {
+    this.syncCountButtons();
     this.renderNameInputs();
-    this.countInput.addEventListener('input', () => this.renderNameInputs());
+    this.countInput.addEventListener('input', () => {
+      this.syncCountButtons();
+      this.renderNameInputs();
+    });
+    this.countOptions.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.player-count-btn');
+      if (!button) return;
+      this.countInput.value = button.dataset.count ?? '1';
+      this.syncCountButtons();
+      this.renderNameInputs();
+    });
   }
 
   onMuteToggle(handler: (muted: boolean) => void) {
@@ -78,7 +90,7 @@ export class Ui {
   }
 
   private renderNameInputs() {
-    const n = Math.max(2, Math.min(10, Number(this.countInput.value) || 2));
+    const n = Math.max(1, Math.min(8, Number(this.countInput.value) || 1));
     const existing = Array.from(this.nameList.querySelectorAll<HTMLInputElement>('input')).map(
       (el) => el.value
     );
@@ -101,6 +113,15 @@ export class Ui {
     }
   }
 
+  private syncCountButtons() {
+    const selected = this.countInput.value;
+    for (const button of this.countOptions.querySelectorAll<HTMLButtonElement>('.player-count-btn')) {
+      const active = button.dataset.count === selected;
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-checked', String(active));
+    }
+  }
+
   renderScores(game: Game, activeId: number | null) {
     const rows = game.players
       .map((p) => {
@@ -115,7 +136,7 @@ export class Ui {
           </div>`;
       })
       .join('');
-    this.scoreboard.innerHTML = `<h2>Scoreboard</h2>${rows}`;
+    this.scoreboard.innerHTML = `<h2>${game.players.length === 1 ? 'Solo score' : 'Scoreboard'}</h2>${rows}`;
   }
 
   /** Live ground → wall → bucket state while the ball is in the air. */

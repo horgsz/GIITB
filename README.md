@@ -56,6 +56,7 @@ npm run check:physics     # every legal placement has a legal shot (~5 min)
 npm run smoke             # drives a real browser through a full turn
 npm run check:scoring     # drives a real browser through a made shot and a steal
 npm run check:title       # title screen fits every viewport without clipping
+npm run check:mobile      # iPhone-sized 1–8 player selector and HUD overlap check
 ```
 
 The browser tests need Chrome and a running `npm run dev`. They use `puppeteer-core`
@@ -83,7 +84,9 @@ Two flakes worth remembering if you add browser tests:
 
 ## How to play
 
-2–10 players share one screen (hot seat). Enter names on the title card to start.
+Choose **1–8 players** from the title card. Solo mode keeps an endless running score:
+every successful shot adds one point, with no final round or win condition. Multiplayer
+uses hot-seat play on one shared screen.
 
 1. **Place** — the placing player drops the bucket in front of the wall, then the feather
    further back. The highlighted patch of ground shows where placement is legal; the bucket

@@ -14,6 +14,7 @@
     "check:scoring": "node tools/score-path.mjs",
     "smoke": "node tools/smoke.mjs",
     "check:title": "node tools/title-fit.mjs",
+    "check:mobile": "node tools/mobile-layout.mjs",
     "test": "npm run typecheck && npm run check:rules"
   },
   "dependencies": {

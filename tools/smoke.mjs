@@ -25,7 +25,7 @@ const step = async (label, fn) => {
 
 // 1. Start a 3-player game.
 await step('start game (3 players)', async () => {
-  await page.$eval('#player-count', (el) => { el.value = '3'; el.dispatchEvent(new Event('input')); });
+  await page.click('.player-count-btn[data-count="3"]');
   await page.click('#start-game');
 });
 

@@ -5,6 +5,26 @@ const names = ['A', 'B', 'C'];
 const MISS = { scored: false, reason: 'missedBucket' } as const;
 const IN = { scored: true } as const;
 
+// -- Solo: each make scores one point, then immediately starts another endless round -----
+{
+  const g = new Game(['Solo']);
+  g.startRound();
+  assert.equal(g.isSolo, true);
+  assert.equal(g.applyThrow(MISS), null, 'a solo miss keeps the same shot alive');
+  assert.equal(g.currentPlayer.name, 'Solo');
+  assert.equal(g.players[0].score, 0);
+
+  for (let expected = 1; expected <= 5; expected++) {
+    const outcome = g.applyThrow(IN);
+    assert.ok(outcome, 'a solo make completes that scoring round');
+    assert.equal(g.players[0].score, expected);
+    assert.equal(g.placer.name, 'Solo');
+    g.startRound();
+  }
+  assert.equal(g.players[0].score, 5, 'solo score keeps accumulating without an end game');
+  console.log('OK  solo mode tallies points indefinitely');
+}
+
 // -- Rule: everyone throws from the same spot, looping, until somebody makes it ----------
 {
   const g = new Game([...names]);
