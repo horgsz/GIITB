@@ -1,0 +1,30 @@
+{
+  "name": "giitb",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Get It In The Bucket - a 3D web game",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "check:rules": "tsx tools/rules-check.mts",
+    "check:physics": "node tools/validate.mjs",
+    "check:scoring": "node tools/score-path.mjs",
+    "smoke": "node tools/smoke.mjs",
+    "check:title": "node tools/title-fit.mjs",
+    "test": "npm run typecheck && npm run check:rules"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "puppeteer-core": "^23.11.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

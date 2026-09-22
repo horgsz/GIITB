@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🪣</text></svg>"
+    />
+    <title>Get It In The Bucket</title>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <div id="hud">
+      <div id="scoreboard"></div>
+
+      <button id="mute-btn" title="Toggle sound">🔊</button>
+
+      <div id="banner">
+        <div id="banner-player"></div>
+        <div id="banner-instruction"></div>
+      </div>
+
+      <div id="sequence" class="hidden">
+        <div class="seq-steps">
+          <span class="pill" id="seq-ground">Ground</span>
+          <span class="seq-arrow">&rarr;</span>
+          <span class="pill" id="seq-wall">Wall</span>
+          <span class="seq-arrow">&rarr;</span>
+          <span class="pill" id="seq-bucket">Bucket</span>
+        </div>
+        <div id="seq-fail"></div>
+      </div>
+
+      <div id="power-wrap">
+        <div id="power-bar">
+          <div id="power-fill"></div>
+          <div class="power-tick" style="bottom: 25%"></div>
+          <div class="power-tick" style="bottom: 50%"></div>
+          <div class="power-tick" style="bottom: 75%"></div>
+        </div>
+        <div id="power-label">POWER</div>
+      </div>
+
+      <button id="throw-btn" class="hidden">Hold to charge</button>
+
+      <div id="result-panel" class="hidden">
+        <div id="result-title"></div>
+        <div id="result-detail"></div>
+        <button id="result-next">Continue</button>
+      </div>
+    </div>
+
+    <div id="setup" class="modal">
+      <div class="modal-card">
+        <h1 class="title">
+          <span class="title-line title-small">Get it in the</span>
+          <span class="title-bucket-wrap">
+            <span class="title-line title-huge">BUCKET</span>
+          </span>
+        </h1>
+
+        <div class="title-rule">
+          <span class="bouncing-ball"></span>
+        </div>
+
+        <p class="tagline">Ground once &middot; Wall once &middot; Then the bucket</p>
+
+        <div class="setup-form">
+          <label for="player-count">Players (2&ndash;10)</label>
+          <input id="player-count" type="number" min="2" max="10" value="3" />
+
+          <div id="name-list"></div>
+
+          <button id="start-game">Start game</button>
+        </div>
+
+        <details class="rules">
+          <summary>Rules</summary>
+          <ul>
+            <li>The placing player sets the bucket in front of the wall, and the feather further back. Highlighted ground shows where placement is allowed.</li>
+            <li>Throw from the feather. The ball must hit the ground <b>once</b>, the wall <b>once</b>, then go in the bucket.</li>
+            <li>Everyone throws from that same spot, in order, looping as many times as it takes, until somebody makes it.</li>
+            <li>Once someone is in, every other player gets one throw to steal the point.</li>
+            <li>The last player to make it takes the point and places the bucket and feather next round.</li>
+            <li>The ball keeps bouncing after a broken sequence, but it can no longer score &mdash; the HUD marks it dead.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
