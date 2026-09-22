@@ -21,6 +21,32 @@ npm run preview      # serve the production build
 
 No backend, no database, no build step to babysit — it's a static site.
 
+## Hosting
+
+The game is deployed automatically by GitHub Actions whenever `main` is pushed:
+
+**https://horgsz.github.io/GIITB/**
+
+The workflow lives at `.github/workflows/deploy-pages.yml`. Vite uses relative asset URLs,
+so the same build works both under the `/GIITB/` project path and at a custom domain.
+
+### Custom domain
+
+After buying `getitinthebucket.com`, use `www.getitinthebucket.com` as the GitHub Pages
+custom domain and configure:
+
+| DNS record | Name | Value |
+| --- | --- | --- |
+| CNAME | `www` | `horgsz.github.io` |
+| A | `@` | `185.199.108.153` |
+| A | `@` | `185.199.109.153` |
+| A | `@` | `185.199.110.153` |
+| A | `@` | `185.199.111.153` |
+
+Then set **Settings → Pages → Custom domain** to `www.getitinthebucket.com` and enable
+**Enforce HTTPS** once GitHub provisions the certificate. GitHub will serve the game at
+the custom domain instead of exposing the `github.io/GIITB` URL to visitors.
+
 ## Tests
 
 ```bash
