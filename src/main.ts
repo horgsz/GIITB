@@ -101,6 +101,12 @@ class Controller {
     this.world.clearTrail();
     this.world.aimLine.visible = false;
     this.world.featherGroup.visible = false;
+    // Touch devices have no hover event to position the ghost before the first drag.
+    // Seed it in the middle of the legal zone so mobile players can immediately see
+    // what they are placing; dragging still moves it normally.
+    this.bucket.set(0, 0, (BUCKET_MIN_Z + BUCKET_MAX_Z) / 2);
+    this.world.bucketGroup.position.copy(this.bucket);
+    this.world.bucketGroup.visible = true;
     this.world.showZone(BUCKET_MIN_Z, BUCKET_MAX_Z, PLACE_HALF_WIDTH);
     this.world.framePlacement();
     this.ui.setPower(null);
@@ -393,7 +399,9 @@ class Controller {
       pointHolder: g?.pointHolder?.name ?? null,
       isStealPhase: g?.isStealPhase ?? false,
       lap: g?.lap ?? 0,
-      scores: g?.players.map((p) => ({ name: p.name, score: p.score })) ?? []
+      scores: g?.players.map((p) => ({ name: p.name, score: p.score })) ?? [],
+      bucketVisible: this.world.bucketGroup.visible,
+      bucketPosition: this.world.bucketGroup.position.toArray()
     };
   }
 

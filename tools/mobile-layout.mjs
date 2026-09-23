@@ -56,6 +56,12 @@ check(
 );
 await page.click('#start-game');
 await new Promise((resolve) => setTimeout(resolve, 500));
+const placementState = await page.evaluate(() => window.__giitb.state());
+check('bucket is visible before the first mobile drag', placementState.bucketVisible);
+check(
+  'bucket ghost starts inside the legal placement zone',
+  placementState.bucketPosition[2] >= 0.6 && placementState.bucketPosition[2] <= 2.5
+);
 await page.evaluate(() => window.__giitb.setup(0, 1.55, 0, 5.3));
 await new Promise((resolve) => setTimeout(resolve, 1000));
 
