@@ -140,7 +140,15 @@ export class Ui {
   }
 
   /** Live ground → wall → bucket state while the ball is in the air. */
-  setSequence(state: { ground: boolean; wall: boolean; dead: boolean; text: string } | null) {
+  setSequence(
+    state: {
+      ground: boolean;
+      wall: boolean;
+      bucket: boolean;
+      dead: boolean;
+      text: string;
+    } | null
+  ) {
     if (!state) {
       this.sequence.classList.add('hidden');
       return;
@@ -153,8 +161,7 @@ export class Ui {
     };
     mark(this.seqGround, state.ground);
     mark(this.seqWall, state.wall);
-    mark(this.seqBucket, false);
-    this.seqBucket.classList.toggle('dead', state.dead);
+    mark(this.seqBucket, state.bucket);
     this.seqFail.textContent = state.text;
   }
 

@@ -68,8 +68,28 @@ async function runRound(name, stealShots) {
   const opener = await throwAndResolve(IDEAL);
   check('opening throw scores', opener.title.toLowerCase().includes('bucket'));
   let st = await state();
+  const bucketLabel = await page.$eval('#seq-bucket', (element) => {
+    const style = getComputedStyle(element);
+    return {
+      done: element.classList.contains('done'),
+      animationName: style.animationName,
+      backgroundColor: style.backgroundColor,
+      textShadow: style.textShadow
+    };
+  });
   check('point holder set after the make', st.pointHolder === 'Player 1');
   check('steal phase begins', st.isStealPhase === true);
+  check('BUCKET sequence label enters its confirmed state', bucketLabel.done);
+  check(
+    'BUCKET text uses the subtle glow animation',
+    bucketLabel.animationName.includes('bucket-glow') && bucketLabel.textShadow !== 'none'
+  );
+  check(
+    'BUCKET pill keeps a dark background instead of filling green',
+    bucketLabel.backgroundColor.includes('13, 17, 23')
+  );
+  check('bucket interior glows after the settled score', st.bucketGlowing === true);
+  check('settled ball is occluded by the bucket', st.ballVisible === false);
   await cont();
 
   // Steal pass.

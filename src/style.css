@@ -123,6 +123,35 @@ html, body {
   color: var(--ink);
 }
 
+/* A confirmed make feels different from the prerequisite contacts: the bucket
+   stays dark while its lettering softly lights up instead of flashing solid green. */
+#seq-bucket.done {
+  color: #72ec80;
+  background: rgba(13, 17, 23, 0.78);
+  border-color: rgba(87, 211, 100, 0.62);
+  animation:
+    bucket-glow-in 0.55s ease-out both,
+    bucket-glow-pulse 1.9s ease-in-out 0.55s infinite;
+}
+
+@keyframes bucket-glow-in {
+  from {
+    color: rgba(244, 241, 234, 0.5);
+    border-color: rgba(244, 241, 234, 0.2);
+    text-shadow: 0 0 0 rgba(87, 211, 100, 0);
+  }
+  to {
+    color: #72ec80;
+    border-color: rgba(87, 211, 100, 0.62);
+    text-shadow: 0 0 8px rgba(87, 211, 100, 0.68);
+  }
+}
+
+@keyframes bucket-glow-pulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(87, 211, 100, 0.42); }
+  50% { text-shadow: 0 0 11px rgba(87, 211, 100, 0.82); }
+}
+
 .pill.dead {
   background: rgba(13, 17, 23, 0.7);
   border-color: rgba(255, 107, 107, 0.5);

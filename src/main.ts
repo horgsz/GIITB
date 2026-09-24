@@ -97,6 +97,7 @@ class Controller {
 
   private beginPlacement() {
     this.phase = 'placeBucket';
+    this.world.setBucketScored(false);
     this.world.despawnBall();
     this.world.clearTrail();
     this.world.aimLine.visible = false;
@@ -117,6 +118,7 @@ class Controller {
 
   private beginAim() {
     this.phase = 'aim';
+    this.world.setBucketScored(false);
     this.charging = false;
     this.dragging = false;
     this.power = 0;
@@ -401,7 +403,9 @@ class Controller {
       lap: g?.lap ?? 0,
       scores: g?.players.map((p) => ({ name: p.name, score: p.score })) ?? [],
       bucketVisible: this.world.bucketGroup.visible,
-      bucketPosition: this.world.bucketGroup.position.toArray()
+      bucketPosition: this.world.bucketGroup.position.toArray(),
+      bucketGlowing: this.world.isBucketGlowing,
+      ballVisible: this.world.ballMesh.visible
     };
   }
 
@@ -497,6 +501,7 @@ class Controller {
       const result = this.tracker.update(dt, pos, this.world.ballSpeed, this.bucket);
       this.ui.setSequence(this.tracker.sequenceState);
       this.world.setBallDead(this.tracker.failed);
+      this.world.setBallInsideBucket(this.tracker.insideBucket);
 
       if (this.tracker.failed && !this.wasDead) {
         this.wasDead = true;
@@ -504,6 +509,16 @@ class Controller {
       }
 
       if (result) {
+        if (result.scored) {
+          this.ui.setSequence({
+            ground: true,
+            wall: true,
+            bucket: true,
+            dead: false,
+            text: ''
+          });
+          this.world.setBucketScored(true);
+        }
         this.tracker = null;
         this.resolveThrow(result);
       }

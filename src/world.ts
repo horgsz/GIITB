@@ -32,6 +32,10 @@ export class World {
   wallHandle = -1;
   private bucketHandles = new Set<number>();
   private bucketBody: RAPIER.RigidBody | null = null;
+  private bucketInnerMaterial!: THREE.MeshStandardMaterial;
+  private bucketGlowMaterial!: THREE.MeshBasicMaterial;
+  private bucketGlowLight!: THREE.PointLight;
+  private bucketGlowing = false;
 
   private ballBody: RAPIER.RigidBody | null = null;
   ballCollider: RAPIER.Collider | null = null;
@@ -347,17 +351,38 @@ export class World {
     }
 
     // Dark inner floor gives the open bucket visible depth.
+    this.bucketInnerMaterial = new THREE.MeshStandardMaterial({
+      color: '#4d575d',
+      metalness: 0.62,
+      roughness: 0.52,
+      emissive: '#000000',
+      emissiveIntensity: 0,
+      side: THREE.DoubleSide
+    });
     const innerFloor = new THREE.Mesh(
       new THREE.CircleGeometry(bottomR * 0.93, 48),
-      new THREE.MeshStandardMaterial({
-        color: '#4d575d',
-        metalness: 0.62,
-        roughness: 0.52,
-        side: THREE.DoubleSide
-      })
+      this.bucketInnerMaterial
     );
     innerFloor.rotation.x = -Math.PI / 2;
     innerFloor.position.y = 0.022;
+
+    this.bucketGlowMaterial = new THREE.MeshBasicMaterial({
+      color: '#57d364',
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const glowDisc = new THREE.Mesh(
+      new THREE.CircleGeometry(bottomR * 0.9, 48),
+      this.bucketGlowMaterial
+    );
+    glowDisc.rotation.x = -Math.PI / 2;
+    glowDisc.position.y = 0.027;
+
+    this.bucketGlowLight = new THREE.PointLight('#57d364', 0, 1.8, 2);
+    this.bucketGlowLight.position.set(0, BUCKET_H * 0.56, 0);
 
     // Side lugs and a classic wire bail handle.
     const lugGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.026, 12);
@@ -386,7 +411,17 @@ export class World {
     );
     handle.castShadow = true;
 
-    this.bucketGroup.add(shell, base, rim, innerFloor, handle, ...rings, ...lugs);
+    this.bucketGroup.add(
+      shell,
+      base,
+      rim,
+      innerFloor,
+      glowDisc,
+      this.bucketGlowLight,
+      handle,
+      ...rings,
+      ...lugs
+    );
     this.bucketGroup.visible = false;
     this.scene.add(this.bucketGroup);
   }
@@ -486,6 +521,7 @@ export class World {
 
   /** Moves the bucket (visual + physics) to a spot on the ground. */
   setBucket(x: number, z: number) {
+    this.setBucketScored(false);
     this.bucketGroup.position.set(x, 0, z);
     this.bucketGroup.visible = true;
 
@@ -531,6 +567,33 @@ export class World {
     return this.bucketHandles.has(handle);
   }
 
+  /**
+   * Marks a confirmed make. The ball has already remained inside for the full settle
+   * threshold, so it can no longer bounce out and the glow can safely become permanent.
+   */
+  setBucketScored(scored: boolean) {
+    this.bucketGlowing = scored;
+    this.bucketGlowMaterial.opacity = scored ? 0.78 : 0;
+    this.bucketGlowLight.intensity = scored ? 2.4 : 0;
+    this.bucketInnerMaterial.emissive.set(scored ? '#2cad4d' : '#000000');
+    this.bucketInnerMaterial.emissiveIntensity = scored ? 1.3 : 0;
+    if (scored) this.ballMesh.visible = false;
+  }
+
+  get isBucketGlowing() {
+    return this.bucketGlowing;
+  }
+
+  /**
+   * The visual bucket tapers while its collision shell is vertical. Hide the ball only
+   * while it is below the rim, preventing it from bleeding through the steel side. If it
+   * bounces back above the rim before scoring, it becomes visible again.
+   */
+  setBallInsideBucket(inside: boolean) {
+    if (!this.ballBody || this.bucketGlowing) return;
+    this.ballMesh.visible = !inside;
+  }
+
   // -- ball --------------------------------------------------------------
 
   spawnBall(origin: THREE.Vector3, velocity: THREE.Vector3) {
@@ -557,6 +620,7 @@ export class World {
     this.ballBody = body;
     this.ballMesh.position.copy(origin);
     this.ballMesh.visible = true;
+    this.setBucketScored(false);
     this.ballDead = false;
     const trailMat = this.trailLine.material as THREE.LineBasicMaterial;
     trailMat.color.set('#d8f34a');

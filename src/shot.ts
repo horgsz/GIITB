@@ -27,6 +27,7 @@ export class ShotTracker {
   private elapsed = 0;
   private insideFor = 0;
   private restingFor = 0;
+  private currentlyInside = false;
 
   constructor(
     private readonly groundHandle: number,
@@ -42,11 +43,23 @@ export class ShotTracker {
     return this.failure;
   }
 
+  /** True only while the ball's centre is below the rim and within the bucket. */
+  get insideBucket(): boolean {
+    return this.currentlyInside;
+  }
+
   /** Live rule state for the HUD: which steps are banked, and whether the shot is dead. */
-  get sequenceState(): { ground: boolean; wall: boolean; dead: boolean; text: string } {
+  get sequenceState(): {
+    ground: boolean;
+    wall: boolean;
+    bucket: boolean;
+    dead: boolean;
+    text: string;
+  } {
     return {
       ground: this.stage === 'ground' || this.stage === 'wall',
       wall: this.stage === 'wall',
+      bucket: false,
       dead: this.failure !== null,
       text: this.failure ? `NO POINT — ${MISS_TEXT[this.failure]}` : ''
     };
@@ -90,6 +103,7 @@ export class ShotTracker {
       Math.hypot(dx, dz) < BUCKET_R - BALL_R * 0.4 &&
       ballPos.y > BALL_R * 0.5 &&
       ballPos.y < BUCKET_H;
+    this.currentlyInside = inside;
 
     if (inside) {
       this.insideFor += dt;
