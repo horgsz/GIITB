@@ -1,7 +1,7 @@
 {
   "name": "giitb",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.3.1",
   "type": "module",
   "description": "Get It In The Bucket - a 3D web game",
   "scripts": {

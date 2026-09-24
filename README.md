@@ -3,6 +3,8 @@
 A 3D web game of the backyard classic. Bounce the ball off the ground **once**, off the wall
 **once**, then into the bucket.
 
+[Release history](CHANGELOG.md)
+
 ## Running locally
 
 ```bash
@@ -25,7 +27,7 @@ No backend, no database, no build step to babysit — it's a static site.
 
 The game is deployed automatically by GitHub Actions whenever `main` is pushed:
 
-**https://horgsz.github.io/GIITB/**
+**https://www.getitinthebucket.com/**
 
 The workflow lives at `.github/workflows/deploy-pages.yml`. Vite uses relative asset URLs,
 so the same build works both under the `/GIITB/` project path and at a custom domain.
