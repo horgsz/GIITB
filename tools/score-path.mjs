@@ -68,25 +68,41 @@ async function runRound(name, stealShots) {
   const opener = await throwAndResolve(IDEAL);
   check('opening throw scores', opener.title.toLowerCase().includes('bucket'));
   let st = await state();
-  const bucketLabel = await page.$eval('#seq-bucket', (element) => {
-    const style = getComputedStyle(element);
+  const bucketAnimation = await page.$eval(
+    '#seq-bucket',
+    (element) => getComputedStyle(element).animationName
+  );
+  await sleep(900);
+  const sequenceLabels = await page.evaluate(() => {
+    const read = (id) => {
+      const element = document.getElementById(id);
+      const style = getComputedStyle(element);
+      return {
+        done: element.classList.contains('done'),
+        color: style.color,
+        backgroundColor: style.backgroundColor,
+        borderColor: style.borderColor
+      };
+    };
     return {
-      done: element.classList.contains('done'),
-      animationName: style.animationName,
-      backgroundColor: style.backgroundColor,
-      textShadow: style.textShadow
+      ground: read('seq-ground'),
+      wall: read('seq-wall'),
+      bucket: read('seq-bucket')
     };
   });
   check('point holder set after the make', st.pointHolder === 'Player 1');
   check('steal phase begins', st.isStealPhase === true);
-  check('BUCKET sequence label enters its confirmed state', bucketLabel.done);
+  check('BUCKET sequence label enters its confirmed state', sequenceLabels.bucket.done);
   check(
-    'BUCKET text uses the subtle glow animation',
-    bucketLabel.animationName.includes('bucket-glow') && bucketLabel.textShadow !== 'none'
+    'BUCKET confirmation uses the glow-then-fill animation',
+    bucketAnimation.includes('bucket-confirm')
   );
   check(
-    'BUCKET pill keeps a dark background instead of filling green',
-    bucketLabel.backgroundColor.includes('13, 17, 23')
+    'BUCKET finishes with the same green fill as GROUND and WALL',
+    sequenceLabels.bucket.backgroundColor === sequenceLabels.ground.backgroundColor &&
+      sequenceLabels.bucket.backgroundColor === sequenceLabels.wall.backgroundColor &&
+      sequenceLabels.bucket.color === sequenceLabels.ground.color &&
+      sequenceLabels.bucket.borderColor === sequenceLabels.wall.borderColor
   );
   check('bucket interior glows after the settled score', st.bucketGlowing === true);
   check('settled ball is occluded by the bucket', st.ballVisible === false);
